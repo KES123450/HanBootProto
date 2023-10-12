@@ -4,7 +4,13 @@ using UnityEngine;
 
 public class MapGraph : MonoBehaviour
 {
-    private List<MapVertex> vertexes;
+    public List<MapVertex> vertexes;
+
+    public MapGraph(List<MapVertex> v)
+    {
+        vertexes = new List<MapVertex>(v);
+
+    }
 
     public void AddVertex(Vector3 pos)
     {
@@ -18,6 +24,11 @@ public class MapGraph : MonoBehaviour
         to.neighbors.AddLast(from);
         from.roadTags.AddLast(tag);
         to.roadTags.AddLast(tag);
+    }
+
+    public void DeleteEdge()
+    {
+
     }
 
 }
