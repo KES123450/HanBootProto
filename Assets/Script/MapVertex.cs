@@ -9,6 +9,10 @@ public class MapVertex : MonoBehaviour
     public LinkedList<RoadTag> roadTags;
     public int overlappingPaths;
 
+    public override string ToString()
+    {
+        return vertexPosition.ToString();
+    }
     public MapVertex(Vector3 pos)
     {
         vertexPosition = pos;

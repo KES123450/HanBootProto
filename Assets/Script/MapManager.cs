@@ -18,7 +18,7 @@ public class MapManager : MonoBehaviour
         MapVertex v6 = new MapVertex(new Vector3(-7.25f, -0.8f, 0));
         MapVertex v7 = new MapVertex(new Vector3(5.25f, 3.45f, 0));
         MapVertex v8 = new MapVertex(new Vector3(4f, -3.8f, 0));
-        List<MapVertex> vertexList = new List<MapVertex> { v1, v2, v3, v4, v5, v6, v7, v8 };
+        List<MapVertex> vertexList = new List<MapVertex> {v0, v1, v2, v3, v4, v5, v6, v7, v8 };
         map = new MapGraph(vertexList);
     }
 }

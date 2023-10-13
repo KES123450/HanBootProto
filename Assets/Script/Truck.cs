@@ -11,14 +11,19 @@ public class Truck : MonoBehaviour
     [SerializeField] private float truckArea;
     int nowIndex = 0;
 
-    public Truck(List<MapVertex> path)
+
+    public void InitTruck(List<MapVertex> paths, Color color)
     {
-        truckPath = new(path);
+        transform.position = Vector3.zero;
+        truckPath = new(paths);
+        path.startColor = color;
+        path.endColor = color;
         RenderPath();
     }
+    
     private void Start()
     {
-       /* truckPath = new();
+    /*    truckPath = new();
         MapVertex v1 = new MapVertex(new Vector3(0, 0, 0));
         MapVertex v2 = new MapVertex(new Vector3(1, 0, 0));
         MapVertex v3 = new MapVertex(new Vector3(6, 2, 0));
