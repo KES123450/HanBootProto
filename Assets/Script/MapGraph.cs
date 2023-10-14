@@ -20,15 +20,46 @@ public class MapGraph : MonoBehaviour
 
     public void AddEdge(MapVertex from, MapVertex to, RoadTag tag)
     {
-        from.neighbors.AddLast(to);
-        to.neighbors.AddLast(from);
-        from.roadTags.AddLast(tag);
-        to.roadTags.AddLast(tag);
+        from.neighbors.Add(to);
+        to.neighbors.Add(from);
+        from.roadTags.Add(tag);
+        to.roadTags.Add(tag);
+        from.overlappingPaths.Add(0);
+        to.overlappingPaths.Add(0);
     }
 
-    public void DeleteEdge()
+    public void AddPath(MapVertex from, MapVertex to)
     {
+        int index = from.neighbors.FindIndex(x => ReferenceEquals(x, to));
+        from.overlappingPaths[index]++;
 
+        index = to.neighbors.FindIndex(x => ReferenceEquals(x, from));
+        to.overlappingPaths[index]++;
+    }
+
+    public void AddPath(List<MapVertex> vertexes)
+    {
+        for(int i=0; i < vertexes.Count - 1; i++)
+        {
+            AddPath(vertexes[i], vertexes[i + 1]);
+        }
+    }
+
+    public void DeletePath(MapVertex from, MapVertex to)
+    {
+        int index = from.neighbors.FindIndex(x => ReferenceEquals(x, to));
+        from.overlappingPaths[index]--;
+
+        index = to.neighbors.FindIndex(x => ReferenceEquals(x, from));
+        to.overlappingPaths[index]--;
+    }
+
+    public void DeletePath(List<MapVertex> vertexes)
+    {
+        for (int i = 0; i < vertexes.Count - 1; i++)
+        {
+            DeletePath(vertexes[i], vertexes[i + 1]);
+        }
     }
 
 }

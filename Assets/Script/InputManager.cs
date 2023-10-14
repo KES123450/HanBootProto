@@ -5,7 +5,6 @@ using UnityEngine;
 public class InputManager : MonoBehaviour
 {
     public static InputManager instance;
-    [SerializeField] private MapManager mapManager;
     [SerializeField] private Transform corporation;
     [SerializeField] private LineRenderer path;
     [SerializeField] private EdgeCollider2D col;
@@ -14,18 +13,26 @@ public class InputManager : MonoBehaviour
     [SerializeField] private GameObject truckPrefab;
     [SerializeField] private List<Color> pathColors = new();
     [SerializeField] private Transform truckBtnParent;
+    private List<House> houses = new();
+    private List<House> housesTMP = new(); 
     private int choiceTruckIndex;
     private MilkTag pathMilkTag;
 
-/*
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("House"))
         {
-            if (pathMilkTag != 0)
+            
+            House h = collision.GetComponent<House>();
+            if (h.GetTag()!=pathMilkTag)
                 return;
 
-            SetPathByTag(collision.GetComponent<House>().GetTag());
+            if (houses.Count+housesTMP.Count == TruckManager.instance.GetMilkCount())
+                return;
+
+            housesTMP.Add(h);
+            h.OnSelectedEffect();
 
         }
         
@@ -35,9 +42,17 @@ public class InputManager : MonoBehaviour
     {
         if (collision.CompareTag("House"))
         {
+            House h = collision.GetComponent<House>();
+            
+            int index = CheckDuplicateHouse(h);
+            if (index == -1)
+                return;
 
+            Debug.Log("houseTMP");
+            housesTMP.RemoveAt(index);
+            h.OffSelectedEffect();
         }
-    }*/
+    }
 
     private void Awake()
     {
@@ -66,7 +81,7 @@ public class InputManager : MonoBehaviour
             }
                 
 
-            pathVertexes.Add(mapManager.map.vertexes[0]);
+            pathVertexes.Add(MapManager.instance.map.vertexes[0]);
         }
 
         if (Input.GetMouseButton(0))
@@ -77,9 +92,9 @@ public class InputManager : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
             RenderPathByMouse(mousePosition, pathVertexes.Count + 1);
-            //ChangePathColliderByMouse(mousePosition, pathVertexes.Count + 1);
+            ChangePathColliderByMouse(mousePosition, pathVertexes.Count + 1);
 
-            foreach(MapVertex v in mapManager.map.vertexes)
+            foreach(MapVertex v in pathVertexes[pathVertexes.Count-1].neighbors)
             {
                 if (CheckDuplicateVertex(v))
                     continue;
@@ -87,10 +102,11 @@ public class InputManager : MonoBehaviour
                 float distance = Vector3.Distance(mousePosition, v.vertexPosition);
                 if (distance<=area)
                 {
-                    
+                    houses.AddRange(housesTMP);
+                    housesTMP.Clear();
                     pathVertexes.Add(v);
                     RenderPath();
-                    ChangePathCollider();
+
                 }
             }
 
@@ -99,6 +115,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            houses.AddRange(housesTMP);
             if (TruckManager.instance.CheckTruckDrive(choiceTruckIndex))
                 return;
 
@@ -113,19 +130,26 @@ public class InputManager : MonoBehaviour
 
                 path.positionCount = 0;
                 pathVertexes.Clear();
+                foreach(House h in houses)
+                {
+                    h.OffSelectedEffect();
+                }
+                houses.Clear();
+                housesTMP.Clear();
                 return;
             }
 
-            //GameObject truck = Instantiate(truckPrefab, corporation.position, Quaternion.identity);
-            pathVertexes.Add(mapManager.map.vertexes[0]);
-            ChangePathCollider();
-            TruckManager.instance.DriveTruck(choiceTruckIndex, pathVertexes, pathColors[(int)pathMilkTag]);
+            pathVertexes.Add(MapManager.instance.map.vertexes[0]);
+            Color pathColor = pathColors[(int)pathMilkTag];
+            pathColor.a = 0.7f;
+            TruckManager.instance.DriveTruck(choiceTruckIndex, pathVertexes, pathColor,houses);
 
-           
+            MapManager.instance.map.AddPath(pathVertexes);
 
             path.positionCount = 0;
             pathVertexes.Clear();
-            
+            housesTMP.Clear();
+            houses.Clear();
         }
 
     }
@@ -140,6 +164,21 @@ public class InputManager : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private int CheckDuplicateHouse(House h)
+    {
+
+        for (int i = 0; i < housesTMP.Count; i++)
+        {
+            if (ReferenceEquals(housesTMP[i], h))
+            {
+                return i;
+
+            }
+        }
+
+        return -1;
     }
 
     private void RenderPathByMouse(Vector3 mousePos, int pathCount)
@@ -178,7 +217,9 @@ public class InputManager : MonoBehaviour
 
     public void SetPathByTag(MilkTag tag)
     {
-        Debug.Log(tag);
+        if (TruckManager.instance.CheckTruckDrive(choiceTruckIndex))
+            return;
+
         pathMilkTag = tag;
         path.startColor = pathColors[(int)tag];
         path.endColor = pathColors[(int)tag];

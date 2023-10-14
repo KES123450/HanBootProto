@@ -7,6 +7,9 @@ public class TruckManager : MonoBehaviour
     public static TruckManager instance;
     [SerializeField] private List<Truck> trucks = new();
     [SerializeField] private List<bool> isTruckDrive = new();
+    [SerializeField] private int milkMaxCount;
+
+    public int GetMilkCount() => milkMaxCount;
     private void Awake()
     {
         if (instance == null)
@@ -18,12 +21,24 @@ public class TruckManager : MonoBehaviour
             Destroy(this);
         }
     }
-    public void DriveTruck(int index, List<MapVertex> paths,Color color)
+    public void DriveTruck(int index, List<MapVertex> paths,Color color,List<House> houses)
     {
-        trucks[index].InitTruck(paths,color);
+        trucks[index].InitTruck(paths,color,houses);
         isTruckDrive[index] = true;
         trucks[index].gameObject.SetActive(true);
     }
+
+    public void DeleteTruck(int index)
+    {
+        if (!CheckTruckDrive(index))
+            return;
+
+        isTruckDrive[index] = false;
+        
+        trucks[index].DisableTruck();
+        trucks[index].gameObject.SetActive(false);
+    }
+
     public void AddTruck(Truck t)
     {
         trucks.Add(t);
@@ -37,4 +52,6 @@ public class TruckManager : MonoBehaviour
 
         return false;
     }
+
+    
 }

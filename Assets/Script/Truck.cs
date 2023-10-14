@@ -9,33 +9,47 @@ public class Truck : MonoBehaviour
     [SerializeField] private float truckSpeed;
     [SerializeField] private LineRenderer path;
     [SerializeField] private float truckArea;
+    private List<House> targetHouses;
     int nowIndex = 0;
 
 
-    public void InitTruck(List<MapVertex> paths, Color color)
+    public void InitTruck(List<MapVertex> paths, Color color,List<House> houses)
     {
-        transform.position = Vector3.zero;
+        truck.position = Vector3.zero;
+        nowIndex = 0;
         truckPath = new(paths);
+        Debug.Log(houses.ToString());
+        targetHouses = new(houses);
         path.startColor = color;
         path.endColor = color;
         RenderPath();
+        color.a = 1f;
+        truck.GetComponent<SpriteRenderer>().color = color;
     }
-    
-    private void Start()
+
+    public void DisableTruck()
     {
-    /*    truckPath = new();
-        MapVertex v1 = new MapVertex(new Vector3(0, 0, 0));
-        MapVertex v2 = new MapVertex(new Vector3(1, 0, 0));
-        MapVertex v3 = new MapVertex(new Vector3(6, 2, 0));
-        MapVertex v4 = new MapVertex(new Vector3(2, 3, 0));
-        MapVertex v5 = new MapVertex(new Vector3(0, 0, 0));
-        truckPath.Add(v1);
-        truckPath.Add(v2);
-        truckPath.Add(v3);
-        truckPath.Add(v4);
-        truckPath.Add(v5);
-        RenderPath();*/
+        foreach(House h in targetHouses)
+        {
+            h.OffSelectedEffect();
+        }
+        MapManager.instance.map.DeletePath(
+            truckPath);
+        
     }
+    public bool CheckTargetHouse(House h)
+    {
+        foreach(House th in targetHouses)
+        {
+            if (ReferenceEquals(th, h))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private float GetAngle(Vector3 vStart, Vector3 vEnd)
     {
         Vector3 v = vEnd - vStart;
@@ -55,6 +69,11 @@ public class Truck : MonoBehaviour
 
     private void DriveToPath()
     {
+        if (nowIndex == 0)
+        {
+            transform.position = Vector3.zero;
+        }
+
         int nextIndex = GetNextIndex(nowIndex);
         float distance = Vector2.Distance(truck.position, truckPath[nextIndex].vertexPosition);
         if (distance<=truckArea)
@@ -64,7 +83,11 @@ public class Truck : MonoBehaviour
         float angle = GetAngle(truckPath[nowIndex].vertexPosition, 
             truckPath[GetNextIndex(nowIndex)].vertexPosition);
         truck.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        truck.Translate(Vector3.up * truckSpeed * Time.deltaTime);
+
+        float pathOverrapCount = truckPath[nowIndex]
+            .GetOverrapPathCount(truckPath[GetNextIndex(nowIndex)]);
+       
+        truck.Translate(Vector3.up * truckSpeed/pathOverrapCount * Time.deltaTime);
     }
 
     private void RenderPath()

@@ -4,11 +4,21 @@ using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
+    public static MapManager instance;
     public MapGraph map;
 
 
     private void Awake()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+
         MapVertex v0 = new MapVertex(new Vector3(0f, 0f, 0));
         MapVertex v1 = new MapVertex(new Vector3(-2.5f, -2.3f, 0));
         MapVertex v2 = new MapVertex(new Vector3(-5.5f, 1.45f, 0));
@@ -20,5 +30,23 @@ public class MapManager : MonoBehaviour
         MapVertex v8 = new MapVertex(new Vector3(4f, -3.8f, 0));
         List<MapVertex> vertexList = new List<MapVertex> {v0, v1, v2, v3, v4, v5, v6, v7, v8 };
         map = new MapGraph(vertexList);
+
+        map.AddEdge(map.vertexes[0], map.vertexes[5], RoadTag.Lane);
+        map.AddEdge(map.vertexes[5], map.vertexes[2], RoadTag.Lane);
+        map.AddEdge(map.vertexes[2], map.vertexes[6], RoadTag.Lane);
+        map.AddEdge(map.vertexes[6], map.vertexes[0], RoadTag.Lane);
+        map.AddEdge(map.vertexes[6], map.vertexes[1], RoadTag.Lane);
+
+        map.AddEdge(map.vertexes[1], map.vertexes[0], RoadTag.Lane);
+        map.AddEdge(map.vertexes[5], map.vertexes[7], RoadTag.Lane);
+        map.AddEdge(map.vertexes[1], map.vertexes[4], RoadTag.Lane);
+        map.AddEdge(map.vertexes[4], map.vertexes[7], RoadTag.Lane);
+        map.AddEdge(map.vertexes[7], map.vertexes[8], RoadTag.Lane);
+
+        map.AddEdge(map.vertexes[1], map.vertexes[8], RoadTag.Lane);
+        map.AddEdge(map.vertexes[5], map.vertexes[3], RoadTag.Lane);
+        map.AddEdge(map.vertexes[3], map.vertexes[7], RoadTag.Lane);
+        map.AddEdge(map.vertexes[3], map.vertexes[4], RoadTag.Lane);
+        map.AddEdge(map.vertexes[0], map.vertexes[3], RoadTag.Lane);
     }
 }

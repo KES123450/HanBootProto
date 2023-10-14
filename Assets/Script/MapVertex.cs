@@ -5,9 +5,9 @@ using UnityEngine;
 public class MapVertex : MonoBehaviour
 {
     public Vector3 vertexPosition;
-    public LinkedList<MapVertex> neighbors;
-    public LinkedList<RoadTag> roadTags;
-    public int overlappingPaths;
+    public List<MapVertex> neighbors;
+    public List<RoadTag> roadTags;
+    public List<int> overlappingPaths;
 
     public override string ToString()
     {
@@ -18,6 +18,12 @@ public class MapVertex : MonoBehaviour
         vertexPosition = pos;
         neighbors = new();
         roadTags = new();
-        overlappingPaths = 0;
+        overlappingPaths = new();
+    }
+
+    public int GetOverrapPathCount(MapVertex to)
+    {
+        int index = neighbors.FindIndex(x => ReferenceEquals(x, to));
+        return overlappingPaths[index];
     }
 }
