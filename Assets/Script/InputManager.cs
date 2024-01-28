@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class InputManager : MonoBehaviour
 {
@@ -23,8 +24,11 @@ public class InputManager : MonoBehaviour
     {
         if (collision.CompareTag("House"))
         {
-            
             House h = collision.GetComponent<House>();
+
+            if (h.GetIsDelivery())
+                return;
+
             if (h.GetTag()!=pathMilkTag)
                 return;
 
@@ -48,7 +52,6 @@ public class InputManager : MonoBehaviour
             if (index == -1)
                 return;
 
-            Debug.Log("houseTMP");
             housesTMP.RemoveAt(index);
             h.OffSelectedEffect();
         }
@@ -66,7 +69,21 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    public void SetTruckIndex(int i) => choiceTruckIndex = i;
+    public void SetTruckIndex(int i)
+    {
+        truckBtnParent.GetChild(choiceTruckIndex).GetComponent<RectTransform>().DOSizeDelta(new Vector2(40, 40), 0.2f);
+        if (!TruckManager.instance.CheckTruckDrive(choiceTruckIndex))
+        {
+            truckBtnParent.GetChild(choiceTruckIndex)
+                .GetComponent<ChooseTruckButton>().SetButtonColor(Color.white);
+            pathMilkTag = MilkTag.None;
+        }
+            
+        choiceTruckIndex = i;
+        //나중에 ButtonManager 같은거 만들어서 빼기
+       
+        truckBtnParent.GetChild(i).GetComponent<RectTransform>().DOSizeDelta(new Vector2(30, 30), 0.2f);
+    }
 
     private void DrawRoad()
     {
@@ -145,7 +162,10 @@ public class InputManager : MonoBehaviour
             TruckManager.instance.DriveTruck(choiceTruckIndex, pathVertexes, pathColor,houses);
 
             MapManager.instance.map.AddPath(pathVertexes);
-
+            foreach(House h in houses)
+            {
+                h.SetIsDelivery(true);
+            }
             path.positionCount = 0;
             pathVertexes.Clear();
             housesTMP.Clear();

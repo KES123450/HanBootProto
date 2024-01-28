@@ -31,6 +31,7 @@ public class Truck : MonoBehaviour
     {
         foreach(House h in targetHouses)
         {
+            h.SetIsDelivery(false);
             h.OffSelectedEffect();
         }
         MapManager.instance.map.DeletePath(
@@ -69,17 +70,14 @@ public class Truck : MonoBehaviour
 
     private void DriveToPath()
     {
-        if (nowIndex == 0)
-        {
-            transform.position = Vector3.zero;
-        }
-
         int nextIndex = GetNextIndex(nowIndex);
         float distance = Vector2.Distance(truck.position, truckPath[nextIndex].vertexPosition);
         if (distance<=truckArea)
         {
             nowIndex = nextIndex;
+            truck.position = truckPath[nowIndex].vertexPosition;
         }
+
         float angle = GetAngle(truckPath[nowIndex].vertexPosition, 
             truckPath[GetNextIndex(nowIndex)].vertexPosition);
         truck.rotation = Quaternion.Euler(new Vector3(0, 0, angle));

@@ -34,7 +34,6 @@ public class TruckManager : MonoBehaviour
             return;
 
         isTruckDrive[index] = false;
-        
         trucks[index].DisableTruck();
         trucks[index].gameObject.SetActive(false);
     }

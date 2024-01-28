@@ -330,4 +330,4 @@ MonoBehaviour:
   truck: {fileID: 962847609915190685}
   truckSpeed: 2
   path: {fileID: 962847609727862579}
-  truckArea: 0.01
+  truckArea: 0.1
